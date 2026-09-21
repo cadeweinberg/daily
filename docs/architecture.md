@@ -25,8 +25,27 @@ are allowed, etc.
 I am thinking we can use GTK or Qt for the notification and application GUI. plus a SQL database to record the answers, and 
 provide the history of responses. I have a hunch that SQLLite will work great for this use case. 
 
-WHich is essentially three major components. 
+Which is essentially three major components. 
 
 THe database of questions to be asked
 The notification which asks and records answers
 THe application which queries over the database 
+
+We'll use app to place the source files defining the application interface
+The application will need an interface to select which questions are asked,
+when the questions are asked, and what kinds of responses to each question are allowed.
+
+The application will further require interfaces to review The responses to the questions
+sorted by date. and I would like an interface which allows the graphing of questions which have numeric answers. With axis being the number along Y, and the date along X.
+
+We'll use data to place the source files defining the questions to be asked, 
+and with the potential to be asked.
+we can store the database in the users XDG cache directory or XDG config directory.
+The questions can be stored in the database as strings. 
+perhaps we use rows as categories of question.
+and we can allow the user to define a new row, by way of a new category.
+
+
+We'll use the notify directory to define the applet? system notification event
+which asks a question and logs the result into the database.
+
