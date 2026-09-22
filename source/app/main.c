@@ -11,7 +11,12 @@ static void
 activate (GtkApplication *application,
           gpointer        data) {
     GtkWidget *window = NULL;
-    window = gtk_application_window_new(application);
+
+    window = GTK_WIDGET(gtk_application_get_active_window(application));
+    if (window == NULL) {
+        window = gtk_application_window_new(application);
+    }
+    
     gtk_window_set_title(GTK_WINDOW(window), DAILY_WINDOW_DEFAULT_TITLE);
     gtk_window_set_default_size(GTK_WINDOW(window), 
                                 DAILY_WINDOW_DEFAULT_WIDTH,

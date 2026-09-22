@@ -62,6 +62,10 @@ target_link_libraries(daily PRIVATE
     daily_common
 )
 
+target_sources(daily PUBLIC
+    ${DAILY_INCLUDE_DIR}/app/application.h
+)
+
 target_sources(daily PRIVATE
     ${DAILY_SOURCE_DIR}/app/main.c
 )
