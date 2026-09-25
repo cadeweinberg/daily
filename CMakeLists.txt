@@ -67,6 +67,7 @@ target_sources(daily PUBLIC
 )
 
 target_sources(daily PRIVATE
+    ${DAILY_SOURCE_DIR}/app/application.c
     ${DAILY_SOURCE_DIR}/app/main.c
 )
 
