@@ -1,10 +1,7 @@
 mod custom_button;
 
-use std::thread;
-use std::time::Duration;
-
 use gtk::prelude::*;
-use gtk::{self, Application, ApplicationWindow, Button, gio, glib};
+use gtk::{self, Application, ApplicationWindow, gio, glib};
 
 const APP_ID: &str = "org.lovejoy.daily";
 
@@ -17,45 +14,25 @@ fn main() -> glib::ExitCode {
 }
 
 fn build_ui(app: &Application) {
-    let button = Button::builder()
-        .label("Press me!")
-        .margin_top(12)
-        .margin_bottom(12)
-        .margin_start(12)
-        .margin_end(12)
+    let settings = gio::Settings::new(APP_ID);
+
+    let switch = gtk::Switch::builder()
+        .margin_top(48)
+        .margin_bottom(48)
+        .margin_start(48)
+        .margin_end(48)
+        .valign(gtk::Align::Center)
+        .halign(gtk::Align::Center)
         .build();
 
-    let (sender, receiver) = async_channel::bounded(1);
-    button.connect_clicked(move |_| {
-        glib::spawn_future_local(glib::clone!(
-            #[strong]
-            sender,
-            async move {
-                sender
-                    .send_blocking(false)
-                    .expect("The channel needs to be open.");
-                glib::timeout_future_seconds(5).await;
-                sender
-                    .send_blocking(true)
-                    .expect("The channel needs to be open.");
-            }
-        ));
-    });
-
-    glib::spawn_future_local(glib::clone!(
-        #[weak]
-        button,
-        async move {
-            while let Ok(enable_button) = receiver.recv().await {
-                button.set_sensitive(enable_button);
-            }
-        }
-    ));
+    settings
+        .bind("is-switch-enabled", &switch, "active")
+        .build();
 
     let window = ApplicationWindow::builder()
         .application(app)
         .title("Daily")
-        .child(&button)
+        .child(&switch)
         .build();
 
     window.present()
