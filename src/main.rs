@@ -1,7 +1,10 @@
+
 mod custom_button;
+mod custom_window;
 
 use gtk::prelude::*;
-use gtk::{self, Application, ApplicationWindow, gio, glib};
+use gtk::{self, Application, gio, glib};
+use custom_window::Window;
 
 const APP_ID: &str = "org.lovejoy.daily";
 
@@ -29,11 +32,8 @@ fn build_ui(app: &Application) {
         .bind("is-switch-enabled", &switch, "active")
         .build();
 
-    let window = ApplicationWindow::builder()
-        .application(app)
-        .title("Daily")
-        .child(&switch)
-        .build();
+    let window = Window::new(app);
+    window.set_child(Some(&switch));
 
     window.present()
 }
