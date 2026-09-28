@@ -35,7 +35,7 @@ impl ObjectImpl for CustomButton {
             vec![
                 Signal::builder("max-number-reached")
                     .param_types([i32::static_type()])
-                    .build()
+                    .build(),
             ]
         })
     }

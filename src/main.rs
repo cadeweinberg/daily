@@ -1,49 +1,62 @@
-
 mod custom_button;
 
-use std;
-use gtk::prelude::*;
-use gtk::glib;
+use std::thread;
+use std::time::Duration;
 
-use custom_button::CustomButton;
+use gtk::prelude::*;
+use gtk::{self, Application, ApplicationWindow, Button, gio, glib};
 
 const APP_ID: &str = "org.lovejoy.daily";
 
 fn main() -> glib::ExitCode {
-    // mains job in a gtk application is to run a GtkApplication.
-    // first we create our application
-    // then we run it
-    let app = gtk::Application::builder()
-        .application_id(APP_ID)
-        .build();
+    let app = Application::builder().application_id(APP_ID).build();
 
     app.connect_activate(build_ui);
 
-    return app.run();
+    app.run()
 }
 
-fn build_ui(app: &gtk::Application) {
-    let button = CustomButton::new();
-    button.set_margin_top(12);
-    button.set_margin_bottom(12);
-    button.set_margin_start(12);
-    button.set_margin_end(12);
+fn build_ui(app: &Application) {
+    let button = Button::builder()
+        .label("Press me!")
+        .margin_top(12)
+        .margin_bottom(12)
+        .margin_start(12)
+        .margin_end(12)
+        .build();
 
-    button.connect_closure(
-        "max-number-reached",
-        false,
-        glib::closure_local!(move |_button: CustomButton, number: i32| {
-            println!("The maximum number {} has been reached", number);
-        })
-    );
+    let (sender, receiver) = async_channel::bounded(1);
+    button.connect_clicked(move |_| {
+        glib::spawn_future_local(glib::clone!(
+            #[strong]
+            sender,
+            async move {
+                sender
+                    .send_blocking(false)
+                    .expect("The channel needs to be open.");
+                glib::timeout_future_seconds(5).await;
+                sender
+                    .send_blocking(true)
+                    .expect("The channel needs to be open.");
+            }
+        ));
+    });
 
-    let window = gtk::ApplicationWindow::builder()
+    glib::spawn_future_local(glib::clone!(
+        #[weak]
+        button,
+        async move {
+            while let Ok(enable_button) = receiver.recv().await {
+                button.set_sensitive(enable_button);
+            }
+        }
+    ));
+
+    let window = ApplicationWindow::builder()
         .application(app)
         .title("Daily")
         .child(&button)
         .build();
 
-    window.present();
+    window.present()
 }
-
-
