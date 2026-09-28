@@ -1,3 +1,5 @@
+// Copyright 2026 Cade Weinberg.
+// SPDX-License-Identifier: GPL-3.0-only
 
 mod imp;
 
@@ -25,4 +27,3 @@ impl Default for CustomButton {
         Self::new()
     }
 }
-
