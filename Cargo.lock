@@ -89,7 +89,6 @@ name = "daily"
 version = "0.1.0"
 dependencies = [
  "async-channel",
- "glib",
  "gtk4",
  "sqlite",
  "systemd-user-timers-lib",

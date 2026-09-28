@@ -70,3 +70,5 @@ This is another point to be aware of when we consider porting to macOS or Window
 
 
 
+### GTK graphics setup
+
