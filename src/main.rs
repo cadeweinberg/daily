@@ -23,46 +23,24 @@ fn main() -> glib::ExitCode {
 }
 
 fn build_ui(app: &gtk::Application) {
-    let button_1 = CustomButton::new();
-    let button_2 = CustomButton::new();
+    let button = CustomButton::new();
+    button.set_margin_top(12);
+    button.set_margin_bottom(12);
+    button.set_margin_start(12);
+    button.set_margin_end(12);
 
-    button_1
-        .bind_property("number", &button_2, "number")
-        // How to transform "number" from `button_1` to "number" or `button_2`
-        .transform_to(|_, number: i32| {
-            let incremented_number = number + 1;
-            return Some(incremented_number.to_value());
+    button.connect_closure(
+        "max-number-reached",
+        false,
+        glib::closure_local!(move |_button: CustomButton, number: i32| {
+            println!("The maximum number {} has been reached", number);
         })
-        // How to transform "number" from `button_2` to "number" of `button_1`
-        .transform_from(|_, number: i32| {
-            let decremented_number = number - 1;
-            return Some(decremented_number.to_value());
-        })
-        .bidirectional()
-        .sync_create()
-        .build();
-    
-    button_1.connect_number_notify(|button|{
-        println!("The current number of `button_1` is {}.", button.number());
-    });
-
-    let gtk_box = gtk::Box::builder()
-        .margin_top(12)
-        .margin_bottom(12)
-        .margin_start(12)
-        .margin_end(12)
-        .valign(gtk::Align::Center)
-        .halign(gtk::Align::Center)
-        .spacing(12)
-        .orientation(gtk::Orientation::Vertical)
-        .build();
-    gtk_box.append(&button_1);
-    gtk_box.append(&button_2);
+    );
 
     let window = gtk::ApplicationWindow::builder()
         .application(app)
         .title("Daily")
-        .child(&gtk_box)
+        .child(&button)
         .build();
 
     window.present();

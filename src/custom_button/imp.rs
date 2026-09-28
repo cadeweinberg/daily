@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::cell::Cell;
+use std::sync::OnceLock;
 
 use glib::Properties;
+use glib::subclass::Signal;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
@@ -27,6 +29,17 @@ impl ObjectSubclass for CustomButton {
 // Trait shared by all GObjects
 #[glib::derived_properties]
 impl ObjectImpl for CustomButton {
+    fn signals() -> &'static [Signal] {
+        static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
+        SIGNALS.get_or_init(|| {
+            vec![
+                Signal::builder("max-number-reached")
+                    .param_types([i32::static_type()])
+                    .build()
+            ]
+        })
+    }
+
     fn constructed(&self) {
         self.parent_constructed();
 
@@ -42,10 +55,19 @@ impl ObjectImpl for CustomButton {
 // Trait shared by all widgets
 impl WidgetImpl for CustomButton {}
 
+static MAX_NUMBER: i32 = 8;
+
 // Trait shared by all buttons
 impl ButtonImpl for CustomButton {
     fn clicked(&self) {
         let incremented_number = self.obj().number() + 1;
-        self.obj().set_number(incremented_number);
+        let obj = self.obj();
+
+        if incremented_number == MAX_NUMBER {
+            obj.emit_by_name::<()>("max-number-reached", &[&incremented_number]);
+            obj.set_number(0);
+        } else {
+            obj.set_number(incremented_number);
+        }
     }
 }
